@@ -1,0 +1,280 @@
+/** @format */
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromLeft {
+  0% {
+    transform: translateX(-20%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromRight {
+  0% {
+    transform: translateX(20%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromBottom {
+  0% {
+    transform: translateY(20%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  100% {
+    opacity: 1;
+  }
+  0% {
+    opacity: 0;
+  }
+}
+
+@keyframes slideOut {
+  100% {
+    transform: translateX(-40%);
+    opacity: 0;
+  }
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes stepsIn {
+  0% {
+    max-height: 0;
+    opacity: 0;
+  }
+  100% {
+    max-height: 500px; /* Set an appropriately large max-height */
+    opacity: 1;
+  }
+}
+
+@keyframes stepsOut {
+  0% {
+    max-height: auto; /* Same max height as in stepsIn */
+    /* opacity: 1; */
+  }
+  100% {
+    max-height: 0;
+    /* opacity: 0; */
+    border: none;
+  }
+}
+
+@keyframes aboutStepsIn {
+  0% {
+    max-height: 0;
+    opacity: 0;
+  }
+  100% {
+    height: 1000px; /* Set an appropriately large max-height */
+    opacity: 1;
+  }
+}
+
+@keyframes aboutStepsOut {
+  0% {
+    max-height: auto; /* Same max height as in stepsIn */
+    /* opacity: 1; */
+  }
+  100% {
+    max-height: 56px;
+    /* opacity: 0; */
+    border: none;
+  }
+}
+
+@keyframes slideFromTop {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.border-animation {
+  border: 3px solid;
+  border-image: linear-gradient(
+    90deg,
+    #f4c542,
+    #333333,
+    #f28d35,
+    #5644b3,
+    #1e3c72
+  );
+  border-image-slice: 1;
+  animation: border-animation 1.5s linear infinite;
+}
+
+@keyframes border-animation {
+  0% {
+    border-image-source: linear-gradient(
+      90deg,
+      #f4c542,
+      #333333,
+      #f28d35,
+      #5644b3,
+      #1e3c72
+    );
+  }
+  50% {
+    border-image-source: linear-gradient(
+      90deg,
+      #1e3c72,
+      #5644b3,
+      #f28d35,
+      #333333,
+      #f4c542
+    );
+  }
+  100% {
+    border-image-source: linear-gradient(
+      90deg,
+      #f4c542,
+      #333333,
+      #f28d35,
+      #5644b3,
+      #1e3c72
+    );
+  }
+}
+
+.expand {
+  animation: stepsIn 0.5s ease-in-out forwards;
+  /* overflow: hidden; */
+}
+
+.collapse {
+  animation: stepsOut 0.5s ease-in-out forwards;
+  /* overflow: hidden; */
+}
+
+.slide-from-left {
+  animation: slideFromLeft 1s ease-out forwards;
+}
+
+.slide-from-right {
+  animation: slideFromRight 1s ease-out forwards;
+}
+
+.slide-from-bottom {
+  animation: slideFromBottom 1s ease-out forwards;
+}
+
+.slide-from-top {
+  animation: slideFromTop 1s ease-out forwards;
+}
+
+.slide-in {
+  animation: slideIn 1s ease-out forwards;
+}
+
+.areas-slide {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+.slide-out {
+  animation: slideOut 0.8s ease-out forwards;
+}
+.fade-in {
+  animation: fadeIn 1s ease-in forwards;
+}
+
+.fade-out {
+  animation: fadeOut 1s ease-out forwards;
+}
+
+.steps-in {
+  animation: stepsIn 0.5s ease-out forwards;
+}
+
+.steps-out {
+  animation: stepsOut 0.4s ease-in forwards;
+}
+
+.about-steps-in {
+  animation: stepsIn 0.5s ease-out forwards;
+}
+
+.about-steps-out {
+  animation: stepsOut 0.4s ease-in forwards;
+}
+
+@keyframes border-rotation {
+  0% {
+    border-top-color: #e7c501ab;
+    border-right-color: white;
+    border-bottom-color: #ebd662ab;
+    border-left-color: white;
+  }
+  25% {
+    border-top-color: white;
+    border-right-color: #e7c501ab;
+    border-bottom-color: white;
+    border-left-color: #ebd662ab;
+  }
+  50% {
+    border-top-color: #ebd662ab;
+    border-right-color: white;
+    border-bottom-color: #e7c501ab;
+    border-left-color: white;
+  }
+  75% {
+    border-top-color: white;
+    border-right-color: #ebd662ab;
+    border-bottom-color: white;
+    border-left-color: #e7c501ab;
+  }
+  100% {
+    border-top-color: #e7c501ab;
+    border-right-color: white;
+    border-bottom-color: #ebd662ab;
+    border-left-color: white;
+  }
+}
+
+.border-animate {
+  border: 1px solid #e7c301;
+  animation: border-rotation 3s linear infinite;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px #e7c501ab;
+}
