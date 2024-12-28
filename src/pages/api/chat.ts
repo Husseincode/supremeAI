@@ -9,7 +9,11 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
-// Function to get chat response
+/**
+ *
+ * @param message / Function to get chat response
+ * @returns
+ */
 export const getChatResponse = async (message: string) => {
   try {
     const response = await openai.chat.completions.create({
