@@ -85,7 +85,7 @@ const ChatBot = () => {
       }, 50);
     }
   };
-  console.log(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+  //console.log(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
 
   // const handleClickOutside = (event: MouseEvent) => {
   //   if (botRef.current && !botRef.current.contains(event.target as Node)) {
