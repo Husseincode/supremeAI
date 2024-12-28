@@ -5,11 +5,11 @@ import '../styles/stylish.module.css';
 //import Image from 'next/image';
 //import defaultUser from '@/public/assets/defaultUser.png';
 //import SendIconSVG from './sendIcon.svg';
-// import axios from 'axios';
+import axios from 'axios';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faClose } from '@fortawesome/free-solid-svg-icons';
 import LoadingBalls from '../components/loading/loading';
-import { getChatResponse } from '../pages/api/chat';
+//import { getChatResponse } from '../pages/api/chat';
 
 /**creating types of Message interface */
 interface Message {
@@ -59,9 +59,13 @@ const ChatBot = () => {
       //   sender: 'bot',
       //   content: response.data.reply,
       // };
-      const botResponse = await getChatResponse(input);
+      // const botResponse = await getChatResponse(input);
+      const res = await axios.post('/api/chat', { message: input });
       //setMessages((prev) => [...prev, { user: 'ChatGPT', text: botResponse }]);
-      setMessages((prev) => [...prev, { sender: 'bot', content: botResponse }]);
+      setMessages((prev) => [
+        ...prev,
+        { sender: 'bot', content: res.data.response },
+      ]);
 
       //setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
@@ -74,6 +78,14 @@ const ChatBot = () => {
     } finally {
       setIsLoading(false);
     }
+
+    //  try {
+
+    //    setResponse(res.data.response);
+    //  } catch (error) {
+    //    console.error('Error sending message:', error);
+    //    setResponse('Error: Unable to fetch response');
+    //  }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
