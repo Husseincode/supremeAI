@@ -1,3 +1,5 @@
+/** @format */
+
 import React from 'react';
 
 const LoadingBalls: React.FC = () => {
@@ -20,7 +22,7 @@ const styles = {
   ball: {
     width: '10px',
     height: '10px',
-    backgroundColor: 'gray', 
+    backgroundColor: 'gray',
     borderRadius: '50%',
     animation: 'bounce 0.6s infinite alternate',
   },

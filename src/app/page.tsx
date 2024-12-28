@@ -1,5 +1,7 @@
+/** @format */
+
 //import Image from "next/image";
-import ChatBot from '@//components/chat.tsx'
+import ChatBot from '@//components/chat';
 
 export default function Home() {
   return (
@@ -98,6 +100,6 @@ export default function Home() {
     //     </a>
     //   </footer>
     // </div>
-    <ChatBot/>
+    <ChatBot />
   );
 }

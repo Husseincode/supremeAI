@@ -1,14 +1,15 @@
 /** @format */
-'use client'
+'use client';
 import React, { useEffect, useRef, useState } from 'react';
-//import styles from './style.module.css';
-import Image from 'next/image';
+import '@//styles/stylish.module.css';
+//import Image from 'next/image';
 //import defaultUser from '@/public/assets/defaultUser.png';
 //import SendIconSVG from './sendIcon.svg';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
+// import axios from 'axios';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faClose } from '@fortawesome/free-solid-svg-icons';
 import LoadingBalls from '@//components/loading/loading';
+import { getChatResponse } from '@//pages/api/chat';
 
 /**creating types of Message interface */
 interface Message {
@@ -40,7 +41,7 @@ const ChatBot = () => {
      * it has.
      */
     const userMessage: Message = { sender: 'user', content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages([...messages, userMessage]);
 
     // Clear input
     setInput('');
@@ -51,14 +52,18 @@ const ChatBot = () => {
 
     try {
       // Send message to the backend
-      const response = await axios.post('/api/chat', { message: input });
+      //const response = await axios.post('/api/chat', { message: input });
 
       // Add bot response
-      const botMessage: Message = {
-        sender: 'bot',
-        content: response.data.reply,
-      };
-      setMessages((prev) => [...prev, botMessage]);
+      // const botMessage: Message = {
+      //   sender: 'bot',
+      //   content: response.data.reply,
+      // };
+      const botResponse = await getChatResponse(input);
+      //setMessages((prev) => [...prev, { user: 'ChatGPT', text: botResponse }]);
+      setMessages((prev) => [...prev, { sender: 'bot', content: botResponse }]);
+
+      //setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
@@ -80,6 +85,7 @@ const ChatBot = () => {
       }, 50);
     }
   };
+  console.log(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
 
   // const handleClickOutside = (event: MouseEvent) => {
   //   if (botRef.current && !botRef.current.contains(event.target as Node)) {
@@ -104,7 +110,7 @@ const ChatBot = () => {
 
   return (
     <section
-      className={`w-full fixed z-40 bottom-10 md:right-5 flex items-end justify-end px-5 md:px-0`}>
+      className={`w-full slide-from-left fixed z-40 bottom-10 md:right-5 flex items-end justify-end px-5 md:px-0`}>
       <div
         ref={botRef}
         className='w-full md:w-[350px] md:max-w-[350px] h-[400px] p-[10px] rounded-md shadow-xl bg-white flex flex-col gap-2'>
@@ -174,7 +180,8 @@ const ChatBot = () => {
           {/* <span>
                 <SendIconSVG/>
             </span> */}
-          <button onClick={sendMessage}>
+          <button type='button' onClick={sendMessage}>
+            {''}
             <svg
               width='32'
               height='32'
