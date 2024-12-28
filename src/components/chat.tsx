@@ -1,15 +1,15 @@
 /** @format */
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import '@//styles/stylish.module.css';
+import '../styles/stylish.module.css';
 //import Image from 'next/image';
 //import defaultUser from '@/public/assets/defaultUser.png';
 //import SendIconSVG from './sendIcon.svg';
 // import axios from 'axios';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faClose } from '@fortawesome/free-solid-svg-icons';
-import LoadingBalls from '@//components/loading/loading';
-import { getChatResponse } from '@//pages/api/chat';
+import LoadingBalls from '../components/loading/loading';
+import { getChatResponse } from '../pages/api/chat';
 
 /**creating types of Message interface */
 interface Message {
