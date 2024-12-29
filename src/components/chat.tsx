@@ -1,10 +1,12 @@
 /** @format */
 'use client';
-
+import defaultUser from '@//assets/defaultUser.png';
 import React, { useEffect, useRef, useState } from 'react';
 import '../styles/stylish.module.css';
 import axios from 'axios';
 import LoadingBalls from '../components/loading/loading';
+import '../styles/styles.css';
+import Image from 'next/image';
 
 /** Message Interface */
 interface Message {
@@ -84,24 +86,29 @@ const ChatBot = () => {
       e.preventDefault();
       sendMessage();
     }
-    setColor(input === '' ? '#9ca3af' : '#000000');
+    setColor(input !== '' ? '#000000' : '#9ca3af');
   };
 
   return (
-    <section className='w-full slide-from-left fixed z-40 bottom-10 md:right-5 flex items-end justify-end px-5 md:px-0'>
+    <section className='w-full flex md:justify-center md:items-center h-[100vh] slide-from-left md:px-0'>
       <div
         ref={messagesEndRef}
-        className='w-full md:w-[350px] h-[400px] p-2 rounded-md shadow-xl bg-white flex flex-col gap-2'>
-        <div className='bg-gray-400 w-full border h-[400px] overflow-y-scroll scrollbar-hide rounded-md p-2'>
-          <div className='header w-full h-[40px] bg-white rounded-md border flex justify-between items-center px-2 gap-3'>
-            <span className='text-sm'>Jarvis</span>
-            {/* <button
-              className='border py-1 px-2 rounded-lg text-xs'
-              onClick={() => saveChatHistory(messages)}
-              type='button'>
-              Save History
-            </button> */}
+        className='w-full md:w-[350px] md:h-[500px] p-2 md:rounded-md shadow-xl bg-white flex flex-col gap-2'>
+        <div className='header justify-center w-full h-[40px] bg-white rounded-md flex items-center px-2'>
+          <div className='flex items-center justify-center'>
+            {' '}
+            <h2 className='text-lg font-medium'>Jarvis</h2>
+            <Image
+              src={defaultUser}
+              width={30}
+              height={30}
+              className='rounded-full'
+              alt=''
+            />
           </div>
+        </div>
+        <div
+          className={`chatWallPaper w-full border md:h-[300px] h-[500px] overflow-y-scroll scrollbar-hide rounded-md p-2`}>
           <div className='flex-1 py-4 overflow-y-scroll scrollbar-hide'>
             {messages.map((msg, idx) => (
               <div
@@ -129,13 +136,13 @@ const ChatBot = () => {
             <div ref={messagesEndRef} />
           </div>
         </div>
-        <div className='min-h-[40px] border rounded-md bg-[#F5F5F5] flex items-center justify-between px-2'>
+        <div className='min-h-[100px] border rounded-md bg-[#F5F5F5] flex items-center justify-between px-2'>
           <textarea
             value={input}
             onKeyPress={handleKeyPress}
             onChange={(e) => setInput(e.target.value)}
             className='outline-none px-2 pt-4 pb-2 bg-transparent w-full text-sm resize-none'
-            placeholder='Type a message'
+            placeholder='Type a message...'
           />
           <button type='button' onClick={sendMessage}>
             {''}
@@ -158,5 +165,9 @@ const ChatBot = () => {
     </section>
   );
 };
+
+// const chatWallpaper = {
+//   background: `url(${})`
+// }
 
 export default ChatBot;

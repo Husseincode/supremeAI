@@ -49,7 +49,7 @@ export default async function handler(
     });
 
     const content = response.choices[0]?.message?.content || 'No response';
-    console.log(content);
+    console.log(response);
 
     return res.status(200).json({ response: content });
   } catch (error) {

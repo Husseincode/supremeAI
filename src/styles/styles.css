@@ -1,0 +1,9 @@
+/** @format */
+
+.chatWallPaper {
+  background-image: url('../assets/chatWallpaper.jpeg');
+  /* filter: brightness(75%); */
+  @apply bg-cover; /* Adjust size for both images */
+  background-repeat: no-repeat; /* Ensure no repetition */
+  /* min-height: 920px; */
+}
