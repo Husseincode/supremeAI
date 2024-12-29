@@ -93,7 +93,7 @@ const ChatBot = () => {
     <section className='w-full flex md:justify-center md:items-center h-[100vh] slide-from-left md:px-0'>
       <div
         ref={messagesEndRef}
-        className='w-full md:w-[350px] md:h-[500px] p-2 md:rounded-md shadow-xl bg-white flex flex-col gap-2'>
+        className='w-full md:w-[350px] md:h-[500px] py-2 px-4 md:rounded-md shadow-xl bg-white flex flex-col gap-2'>
         <div className='header justify-center w-full h-[40px] bg-white rounded-md flex items-center px-2'>
           <div className='flex items-center justify-center'>
             {' '}
