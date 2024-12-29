@@ -86,18 +86,17 @@ const ChatBot = () => {
       e.preventDefault();
       sendMessage();
     }
-    setColor(input !== '' ? '#000000' : '#9ca3af');
   };
 
   return (
-    <section className='w-full flex md:justify-center md:items-center h-[100vh] slide-from-left md:px-0'>
+    <section className='w-full flex md:justify-center md:items-center slide-from-left md:px-0'>
       <div
         ref={messagesEndRef}
-        className='w-full md:w-[350px] md:h-[500px] py-2 px-4 md:rounded-md shadow-xl bg-white flex flex-col gap-2'>
-        <div className='header justify-center w-full h-[40px] bg-white rounded-md flex items-center px-2'>
+        className='w-full md:w-[350px] md:h-[500px] py-2 px-4 md:rounded-md shadow-xl bg-zinc-900 flex flex-col gap-2'>
+        <div className='header justify-center w-full h-[40px] rounded-md flex items-center px-2'>
           <div className='flex items-center justify-center'>
             {' '}
-            <h2 className='text-lg font-medium'>Jarvis</h2>
+            <h2 className='text-2xl text-white font-medium'>Jarvis</h2>
             <Image
               src={defaultUser}
               width={30}
@@ -136,11 +135,14 @@ const ChatBot = () => {
             <div ref={messagesEndRef} />
           </div>
         </div>
-        <div className='min-h-[100px] border rounded-md bg-[#F5F5F5] flex items-center justify-between px-2'>
+        <div className='min-h-[90px] border rounded-md bg-zinc-500 flex items-center justify-between px-2'>
           <textarea
             value={input}
             onKeyPress={handleKeyPress}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setColor(input !== '' ? '#000000' : '#9ca3af');
+            }}
             className='outline-none px-2 pt-4 pb-2 bg-transparent w-full text-sm resize-none'
             placeholder='Type a message...'
           />
