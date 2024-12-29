@@ -1,147 +1,106 @@
 /** @format */
 'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import '../styles/stylish.module.css';
-//import Image from 'next/image';
-//import defaultUser from '@/public/assets/defaultUser.png';
-//import SendIconSVG from './sendIcon.svg';
 import axios from 'axios';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faClose } from '@fortawesome/free-solid-svg-icons';
 import LoadingBalls from '../components/loading/loading';
-//import { getChatResponse } from '../pages/api/chat';
 
-/**creating types of Message interface */
+/** Message Interface */
 interface Message {
   sender: 'user' | 'bot';
   content: string;
 }
 
 const ChatBot = () => {
-  /**messages and setMessages state created as an array to store users and bots details and messages */
   const [messages, setMessages] = useState<Message[]>([]);
-  /**
-   * input state created to store or hold users input
-   */
   const [input, setInput] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const botRef = useRef<HTMLDivElement>(null);
   const [color, setColor] = useState<string>('#9ca3af');
 
+  /** Scroll to the latest message */
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  /** Load chat history on mount */
+  useEffect(() => {
+    const history = getChatHistory();
+    setMessages(history);
+  }, []);
+
+  /** Save chat history to localStorage */
+  const saveChatHistory = (messages: Message[]) => {
+    localStorage.setItem('chatHistory', JSON.stringify(messages));
+  };
+
+  /** Retrieve chat history from localStorage */
+  const getChatHistory = (): Message[] => {
+    try {
+      const history = localStorage.getItem('chatHistory');
+      return history ? JSON.parse(history) : [];
+    } catch (error) {
+      console.error('Error parsing chat history:', error);
+      return [];
+    }
+  };
+
+  /** Send a message */
   const sendMessage = async () => {
-    /**if no message is inputted, sendMessage function will stop the rest
-     * of the codes from executing
-     */
     if (input.trim() === '') return;
 
-    /**
-     * if message is not '', userMessage object is declared with props of sender and content,
-     * then - added to the array of messages while preserving the content
-     * it has.
-     */
     const userMessage: Message = { sender: 'user', content: input };
-    setMessages([...messages, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    saveChatHistory(updatedMessages);
 
-    // Clear input
     setInput('');
-    /**
-     * set the loading display to true, while it gets message from the bot
-     */
     setIsLoading(true);
 
     try {
-      // Send message to the backend
-      //const response = await axios.post('/api/chat', { message: input });
-
-      // Add bot response
-      // const botMessage: Message = {
-      //   sender: 'bot',
-      //   content: response.data.reply,
-      // };
-      // const botResponse = await getChatResponse(input);
       const res = await axios.post('/api/chat', { message: input });
-      //setMessages((prev) => [...prev, { user: 'ChatGPT', text: botResponse }]);
-      setMessages((prev) => [
-        ...prev,
-        { sender: 'bot', content: res.data.response },
-      ]);
-
-      //setMessages((prev) => [...prev, botMessage]);
+      const botMessage: Message = { sender: 'bot', content: res.data.response };
+      const newMessages = [...updatedMessages, botMessage];
+      setMessages(newMessages);
+      saveChatHistory(newMessages);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
         sender: 'bot',
         content: 'Sorry, something went wrong!',
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      const errorMessages = [...updatedMessages, errorMessage];
+      setMessages(errorMessages);
+      saveChatHistory(errorMessages);
     } finally {
       setIsLoading(false);
     }
-
-    //  try {
-
-    //    setResponse(res.data.response);
-    //  } catch (error) {
-    //    console.error('Error sending message:', error);
-    //    setResponse('Error: Unable to fetch response');
-    //  }
   };
 
+  /** Handle Enter key press */
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       sendMessage();
-      setIsLoading(true);
-      setTimeout(() => {
-        setInput('');
-      }, 50);
     }
+    setColor(input === '' ? '#9ca3af' : '#000000');
   };
-  //console.log(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
-
-  // const handleClickOutside = (event: MouseEvent) => {
-  //   if (botRef.current && !botRef.current.contains(event.target as Node)) {
-  //     setIsClicked(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   // Add event listener when the component mounts
-  //   document.addEventListener('mousedown', handleClickOutside);
-
-  //   // Clean up event listener on component unmount
-  //   return () => {
-  //     document.removeEventListener('mousedown', handleClickOutside);
-  //   };
-  // }, [botRef]);
-
-  //useEffects
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   return (
-    <section
-      className={`w-full slide-from-left fixed z-40 bottom-10 md:right-5 flex items-end justify-end px-5 md:px-0`}>
+    <section className='w-full slide-from-left fixed z-40 bottom-10 md:right-5 flex items-end justify-end px-5 md:px-0'>
       <div
-        ref={botRef}
-        className='w-full md:w-[350px] md:max-w-[350px] h-[400px] p-[10px] rounded-md shadow-xl bg-white flex flex-col gap-2'>
-        {/* <div className='w-fit absolute p-4 right-0 bg-white rounded-full'>
-        <FontAwesomeIcon icon={faClose}/>
-      </div> */}
-        <div
-          className={`bg-gray-400 w-full md:max-w-[350px] border h-[400px] overflow-y-scroll scrollbar-hide rounded-md p-2`}>
-          <div className='header h-[40px] w-full bg-white rounded-md border flex items-center pl-2 gap-3'>
-            <div className='bg-[#CCCCE3] w-fit rounded-full'>
-              {/* <Image
-                  src={userImg ? userImg : defaultUser}
-                  width={30}
-                  height={30}
-                  className='rounded-full'
-                  alt=''
-                /> */}
-            </div>
+        ref={messagesEndRef}
+        className='w-full md:w-[350px] h-[400px] p-2 rounded-md shadow-xl bg-white flex flex-col gap-2'>
+        <div className='bg-gray-400 w-full border h-[400px] overflow-y-scroll scrollbar-hide rounded-md p-2'>
+          <div className='header w-full h-[40px] bg-white rounded-md border flex justify-between items-center px-2 gap-3'>
             <span className='text-sm'>Jarvis</span>
+            {/* <button
+              className='border py-1 px-2 rounded-lg text-xs'
+              onClick={() => saveChatHistory(messages)}
+              type='button'>
+              Save History
+            </button> */}
           </div>
           <div className='flex-1 py-4 overflow-y-scroll scrollbar-hide'>
             {messages.map((msg, idx) => (
@@ -152,20 +111,18 @@ const ChatBot = () => {
                 }`}>
                 {msg.sender === 'bot' && (
                   <div className='w-[25px] h-[25px] bg-white text-center pt-1 font-bold border rounded-full text-xs'>
-                    R
+                    J
                   </div>
                 )}
-                <div
-                  className={`flex flex-wrap text-sm text-wrap px-4 py-2 rounded-lg border bg-white text-gray-800`}>
+                <div className='flex flex-wrap text-sm px-4 py-2 rounded-lg border bg-white text-gray-800'>
                   {msg.content}
-                  {/* <span className='absolute z-10 text-xs'>{new Date().getTime()}</span> */}
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className='flex justify-start mb-4'>
-                <span className="bg-gray-200 text-sm text-gray-800 p-2 rounded-lg flex items' gap-1">
-                  <span>Bot is typing</span> <LoadingBalls />
+                <span className='bg-gray-200 text-sm text-gray-800 p-2 rounded-lg flex items-center gap-1'>
+                  <span>Jarvis is typing...</span> <LoadingBalls />
                 </span>
               </div>
             )}
@@ -176,22 +133,10 @@ const ChatBot = () => {
           <textarea
             value={input}
             onKeyPress={handleKeyPress}
-            onKeyUp={(e: React.FormEvent) => {
-              e.preventDefault();
-              if (input !== '') {
-                setColor('#0E0E0E');
-              } else {
-                setColor('#9ca3af');
-              }
-            }}
-            onChange={(event: { target: { value: string } }) => {
-              setInput(event.target.value);
-            }}
+            onChange={(e) => setInput(e.target.value)}
             className='outline-none px-2 pt-4 pb-2 bg-transparent w-full text-sm resize-none'
-            placeholder='Type a message'></textarea>
-          {/* <span>
-                <SendIconSVG/>
-            </span> */}
+            placeholder='Type a message'
+          />
           <button type='button' onClick={sendMessage}>
             {''}
             <svg

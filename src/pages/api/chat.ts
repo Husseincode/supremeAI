@@ -22,13 +22,34 @@ export default async function handler(
     return res.status(400).json({ error: 'Message is required' });
   }
 
+  const jarvisAcknowledgment = (userMessage: string) => {
+    if (userMessage.toLowerCase().includes('who created you')) {
+      return "I was created by Akanji Abayomi, a skilled web developer based in Nigeria. I'm here to assist you with anything you need!";
+    }
+    return null;
+  };
+
+  const acknowledgment = jarvisAcknowledgment(message);
+
+  if (acknowledgment) {
+    return res.status(200).json({ response: acknowledgment });
+  }
+
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini', // Use the appropriate model
-      messages: [{ role: 'user', content: message }],
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are Jarvis, an AI assistant created by Akanji Abayomi. You are friendly, intelligent, and eager to assist users with any questions or tasks.',
+        },
+        { role: 'user', content: message },
+      ],
     });
 
     const content = response.choices[0]?.message?.content || 'No response';
+    console.log(content);
 
     return res.status(200).json({ response: content });
   } catch (error) {
