@@ -26,6 +26,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
+      {/* <head>
+        <link
+          rel='stylesheet'
+          href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/solarized-dark.min.css'
+        />
+      </head> */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}

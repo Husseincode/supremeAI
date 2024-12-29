@@ -8,6 +8,8 @@ import LoadingBalls from '../components/loading/loading';
 import '../styles/styles.css';
 import Image from 'next/image';
 import { marked } from 'marked';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/default.css';
 
 /** Message Interface */
 interface Message {
@@ -112,32 +114,43 @@ const ChatBot = () => {
   };
 
   const renderMessageContent = (message: string) => {
-    // // Check if the message is code by looking for code block indicators (optional)
-    // const isCode = message.includes('```');
-    // if (isCode) {
-    //   // Remove the surrounding ``` for display
-    //   return (
-    //     <pre className=''>
-    //       <code>{message.replace(/```/g, '')}</code>
-    //     </pre>
-    //   );
-    // }
-    // return (
-    //   <div
-    //     className='message-content'
-    //     dangerouslySetInnerHTML={{ __html: message }} // This will safely inject the HTML/Markdown content
-    //   />
-    // );
-    // Convert the message content to HTML if it's Markdown
+    // Check if the message is code by looking for code block indicators (optional)
+    const isCode = message.includes('```');
+    //Convert the message content to HTML if it's Markdown
     const htmlContent = convertMarkdownToHtml(message);
-
+    if (isCode) {
+      // Remove the surrounding ``` for display
+      return (
+        <pre className='px-4 py-2'>
+          <code
+            dangerouslySetInnerHTML={{
+              __html: hljs.highlightAuto(message).value,
+            }}
+          />
+          {/* <code>{message.replace(/```/g, '')}</code> */}
+        </pre>
+      );
+    }
     return (
       <div
-        className='message-content'
+        className='message-content px-4 py-2'
         dangerouslySetInnerHTML={{ __html: htmlContent }} // This will safely inject the HTML/Markdown content
       />
     );
+    // Convert the message content to HTML if it's Markdown
+    // const htmlContent = convertMarkdownToHtml(message);
+
+    // return (
+    //   <div
+    //     className='message-content'
+    //     dangerouslySetInnerHTML={{ __html: htmlContent }} // This will safely inject the HTML/Markdown content
+    //   />
+    // );
   };
+
+  useEffect(() => {
+    hljs.highlightAll();
+  }, []);
 
   return (
     <section className='w-full h-screen flex md:justify-center md:items-center slide-from-left md:px-0'>
@@ -167,7 +180,7 @@ const ChatBot = () => {
                     </div>
                   )}
                   <div
-                    className={`flex flex-wrap break-words overflow-scroll scrollbar-hide text-sm px-4 py-2 rounded-lg border ${
+                    className={`flex flex-wrap break-words overflow-scroll scrollbar-hide text-sm rounded-lg ${
                       msg.role === 'user' ? 'bg-gray-100' : 'bg-gray-300'
                     } text-gray-800`}>
                     {renderMessageContent(msg.content)}
