@@ -16,22 +16,22 @@ export default async function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { message } = req.body;
+  const { message, history } = req.body;
 
   if (!message) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  // if (!process.env.OPENAI_API_KEY) {
-  //   console.error('Missing OpenAI API Key');
-  //   return res
-  //     .status(500)
-  //     .json({ error: 'Internal server configuration error' });
-  // }
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('Missing OpenAI API Key');
+    return res
+      .status(500)
+      .json({ error: 'Internal server configuration error' });
+  }
 
-  // if (!Array.isArray(history)) {
-  //   return res.status(400).json({ error: 'Invalid history format' });
-  // }
+  if (!Array.isArray(history)) {
+    return res.status(400).json({ error: 'Invalid history format' });
+  }
 
   const jarvisAcknowledgment = (userMessage: string) => {
     if (userMessage.toLowerCase().includes('who created you')) {
@@ -55,7 +55,7 @@ export default async function handler(
           content:
             'You are Jarvis, an AI assistant created by Akanji Abayomi. You are friendly, intelligent, and eager to assist users with any questions or tasks.',
         },
-        // ...(Array.isArray(history) ? history : []),
+        ...(Array.isArray(history) ? history : []),
         { role: 'user', content: message },
       ],
     });
