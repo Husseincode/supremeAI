@@ -22,6 +22,8 @@ import LoadingPage from './loading/loadingPage';
 import { onAuthStateChanged } from 'firebase/auth';
 import WelcomePage from './welcomePage';
 //import { getChatHistory } from '../utils/getChatHistory';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 /** Message Interface */
 interface Message {
@@ -38,6 +40,7 @@ const ChatBot = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | null>(null); // Store user ID
+  const [user, setUser] = useState<any>();
 
   /** Scroll to the latest message */
   const scrollToBottom = () => {
@@ -226,6 +229,7 @@ const ChatBot = () => {
   onAuthStateChanged(auth, (user) => {
     if (user) {
       console.log('User is signed in:', user);
+      setUser(user);
     } else {
       console.log('User is signed out');
     }
@@ -237,14 +241,31 @@ const ChatBot = () => {
     <Suspense fallback={<LoadingPage />}>
       <section className='w-full h-screen flex md:justify-center md:items-center slide-from-left md:px-0 bg-zinc-900 md:bg-transparent'>
         <div className='w-full md:w-[350px] md:h-[500px] py-2 px-4 md:rounded-md slide-from-bottom shadow-xl bg-zinc-900 flex flex-col gap-1'>
-          <div className='header bg-zinc-900 flex justify-center w-full h-[40px] rounded-md items-center px-2'>
-            <h2 className='text-2xl text-white font-medium'>Jarvis</h2>
-            <Image
-              src={defaultUser}
-              width={30}
-              height={30}
-              className='rounded-full ml-2'
-              alt='Default User'
+          <div className='header bg-zinc-900 flex justify-between w-full h-[40px] rounded-md items-center px-2'>
+            {user ? (
+              <div
+                title={user?.email}
+                className='bg-purple-700 cursor-pointer text-white w-[25px] h-[25px] rounded-full text-center'>
+                {user.email[0].toUpperCase()}
+              </div>
+            ) : (
+              <div></div>
+            )}
+            <div className='flex justify-center items-center'>
+              <h2 className='text-2xl text-white font-medium'>Jarvis</h2>
+              <Image
+                src={defaultUser}
+                width={30}
+                height={30}
+                className='rounded-full ml-2'
+                alt='Default User'
+              />
+            </div>
+            <FontAwesomeIcon
+              icon={faSignOutAlt}
+              className='w-[20px] h-[20px] cursor-pointer'
+              color='gray'
+              onClick={() => auth.signOut()}
             />
           </div>
           <div className='flex flex-col gap-6'>
