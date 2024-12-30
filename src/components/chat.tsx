@@ -17,8 +17,11 @@ import {
   serverTimestamp,
   getDocs,
 } from 'firebase/firestore';
-import { db } from '@//utils/firebaseConfig';
+import { db, auth } from '@//utils/firebaseConfig';
 import LoadingPage from './loading/loadingPage';
+import { onAuthStateChanged } from 'firebase/auth';
+import WelcomePage from './welcomePage';
+//import { getChatHistory } from '../utils/getChatHistory';
 
 /** Message Interface */
 interface Message {
@@ -34,6 +37,7 @@ const ChatBot = () => {
   const [sendButtonColor, setSendButtonColor] = useState<string>('#9ca3af');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
+  const [userId, setUserId] = useState<string | null>(null); // Store user ID
 
   /** Scroll to the latest message */
   const scrollToBottom = () => {
@@ -62,16 +66,14 @@ const ChatBot = () => {
     scrollToBottom();
   }, [messages]);
 
-  const loadChatHistoryFromFirestore = async () => {
+  const loadChatHistoryFromFirestore = async (uid: string) => {
     try {
-      const chatId = 'defaultChat'; // Replace with dynamic ID logic if needed
-      const messagesRef = collection(db, 'chats', chatId, 'messages');
+      const messagesRef = collection(db, 'users', uid, 'chats');
       const querySnapshot = await getDocs(messagesRef);
 
       const messages: Message[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        console.log(data);
         messages.push({
           role: data.sender,
           content: data.content,
@@ -79,29 +81,30 @@ const ChatBot = () => {
         });
       });
 
+      // Sort messages by timestamp to display them in the correct order
       const sortedMessages = messages.sort(
-        (a: any, b: any) => a.timestamp - b.timestamp
+        (a: any, b: any) => a.timestamp.getTime() - b.timestamp.getTime()
       );
 
-      setMessages(sortedMessages);
+      setMessages(sortedMessages); // Update state with sorted messages
     } catch (error) {
       console.error('Error loading chat history from Firestore:', error);
     }
   };
 
-  useEffect(() => {
-    loadChatHistoryFromFirestore();
-  }, []);
+  // useEffect(() => {
+  //   loadChatHistoryFromFirestore();
+  // }, []);
 
   /** Save chat history to localStorage */
-  const saveChatHistory = async (messages: Message[]) => {
+  const saveChatHistory = async (messages: Message[], uid: string) => {
     try {
-      const chatId = 'defaultChat'; // Replace with dynamic ID logic if needed
+      //const chatId = 'defaultChat'; // Replace with dynamic ID logic if needed
       //const sender = 'user'; // Adjust sender logic if needed
 
       // Save each message in Firestore
       for (const message of messages) {
-        const messagesRef = collection(db, 'chats', chatId, 'messages');
+        const messagesRef = collection(db, 'users', uid, 'chats');
         await addDoc(messagesRef, {
           sender: message.role,
           content: message.content,
@@ -118,7 +121,7 @@ const ChatBot = () => {
 
   //Send a message
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !userId) return;
 
     const userMessage: Message = { role: 'user', content: input };
     const updatedMessages = [...messages, userMessage];
@@ -129,7 +132,7 @@ const ChatBot = () => {
 
     try {
       // Only save the user's message once, right after adding it
-      await saveChatHistory([userMessage]);
+      await saveChatHistory([userMessage], userId);
 
       const payload = { message: input, history: messages };
       const res = await axios.post('/api/chat', payload);
@@ -143,7 +146,7 @@ const ChatBot = () => {
       setMessages(newMessages);
 
       // Save the assistant's response after adding it to the state
-      await saveChatHistory([botMessage]);
+      await saveChatHistory([botMessage], userId);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
@@ -152,7 +155,7 @@ const ChatBot = () => {
       };
       const errorMessages = [...updatedMessages, errorMessage];
       setMessages(errorMessages);
-      await saveChatHistory(errorMessages);
+      await saveChatHistory(errorMessages, userId);
     } finally {
       setIsLoading(false);
     }
@@ -200,6 +203,34 @@ const ChatBot = () => {
     hljs.highlightAll();
   }, []);
 
+  // Fetch user chat history when the user is authenticated
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid); // Set user ID when authenticated
+        loadChatHistoryFromFirestore(user.uid); // Load user's chat history
+      } else {
+        setUserId(null); // Clear user ID when not authenticated
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup the subscription
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      loadChatHistoryFromFirestore(userId);
+    }
+  }, [userId]);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log('User is signed in:', user);
+    } else {
+      console.log('User is signed out');
+    }
+  });
+
   if (isPageLoading) return <LoadingPage />;
 
   return (
@@ -217,36 +248,43 @@ const ChatBot = () => {
             />
           </div>
           <div className='flex flex-col gap-6'>
-            <div className='chatWallPaper w-full md:h-[300px] h-[500px] overflow-y-scroll scrollbar-hide rounded-md px-4 py-2'>
-              <div className='flex-1 py-4 overflow-y-scroll scrollbar-hide'>
-                {messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex gap-1 mb-4 flex-wrap ${
-                      msg.role === 'user' ? 'justify-end' : 'justify-start'
-                    }`}>
-                    {msg.role === 'assistant' && (
-                      <div className='w-[25px] h-[25px] bg-white text-center pt-1 font-bold border rounded-full text-xs'>
-                        J
-                      </div>
-                    )}
+            <div
+              className={`chatWallPaper w-full md:h-[300px] h-[500px] overflow-y-scroll scrollbar-hide rounded-md px-4 py-2 ${
+                !userId && 'flex justify-center items-center'
+              }`}>
+              {userId ? (
+                <div className='flex-1 py-4 overflow-y-scroll scrollbar-hide'>
+                  {messages.map((msg, idx) => (
                     <div
-                      className={`flex flex-wrap break-words overflow-scroll scrollbar-hide text-sm rounded-lg ${
-                        msg.role === 'user' ? 'bg-gray-100' : 'bg-gray-300'
-                      } text-gray-800`}>
-                      {renderMessageContent(msg.content)}
+                      key={idx}
+                      className={`flex gap-1 mb-4 flex-wrap ${
+                        msg.role === 'user' ? 'justify-end' : 'justify-start'
+                      }`}>
+                      {msg.role === 'assistant' && (
+                        <div className='w-[25px] h-[25px] bg-white text-center pt-1 font-bold border rounded-full text-xs'>
+                          J
+                        </div>
+                      )}
+                      <div
+                        className={`flex flex-wrap break-words overflow-scroll scrollbar-hide text-sm rounded-lg ${
+                          msg.role === 'user' ? 'bg-gray-100' : 'bg-gray-300'
+                        } text-gray-800`}>
+                        {renderMessageContent(msg.content)}
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className='flex justify-start mb-4'>
-                    <span className='bg-gray-200 text-sm text-gray-800 p-2 rounded-lg flex items-center gap-1'>
-                      <span>Jarvis is typing...</span> <LoadingBalls />
-                    </span>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
+                  ))}
+                  {isLoading && (
+                    <div className='flex justify-start mb-4'>
+                      <span className='bg-gray-200 text-sm text-gray-800 p-2 rounded-lg flex items-center gap-1'>
+                        <span>Jarvis is typing...</span> <LoadingBalls />
+                      </span>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              ) : (
+                <WelcomePage />
+              )}
             </div>
 
             <div className='min-h-[100px] border rounded-md bg-zinc-500 flex items-center justify-between px-2'>
