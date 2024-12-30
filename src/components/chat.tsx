@@ -153,9 +153,9 @@ const ChatBot = () => {
   }, []);
 
   return (
-    <section className='w-full h-screen flex md:justify-center md:items-center slide-from-left md:px-0'>
-      <div className='w-full md:w-[350px] md:h-[500px] py-2 px-4 md:rounded-md shadow-xl bg-zinc-900 flex flex-col gap-2'>
-        <div className='header flex justify-center w-full h-[40px] rounded-md items-center px-2'>
+    <section className='w-full h-screen flex md:justify-center md:items-center slide-from-left md:px-0 bg-zinc-900 md:bg-transparent'>
+      <div className='w-full md:w-[350px] md:h-[500px] py-2 px-4 md:rounded-md shadow-xl bg-zinc-900 flex flex-col mt-6 gap-1'>
+        <div className='header fixed bg-zinc-900 top-[6%] left-[50%] md:top-0 md:left-0 md:translate-x-0 md:translate-y-0 translate-x-[-50%] translate-y-[-50%] md:relative flex justify-center md:w-full h-[40px] rounded-md items-center px-2'>
           <h2 className='text-2xl text-white font-medium'>Jarvis</h2>
           <Image
             src={defaultUser}
@@ -165,8 +165,8 @@ const ChatBot = () => {
             alt='Default User'
           />
         </div>
-        <div className='flex flex-col gap-10'>
-          <div className='chatWallPaper w-full md:h-[300px] h-[500px] overflow-y-scroll scrollbar-hide rounded-md p-2'>
+        <div className='flex flex-col gap-6'>
+          <div className='chatWallPaper w-full md:h-[300px] h-[500px] overflow-y-scroll scrollbar-hide rounded-md pb-2 pt-[70px] px-2 md:p-2'>
             <div className='flex-1 py-4 overflow-y-scroll scrollbar-hide'>
               {messages.map((msg, idx) => (
                 <div
@@ -198,7 +198,7 @@ const ChatBot = () => {
             </div>
           </div>
 
-          <div className='min-h-[90px] border rounded-md bg-zinc-500 flex items-center justify-between px-2'>
+          <div className='min-h-[100px] border rounded-md bg-zinc-500 flex items-center justify-between px-2'>
             <textarea
               value={input}
               onKeyPress={handleKeyPress}
