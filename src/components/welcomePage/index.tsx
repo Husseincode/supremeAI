@@ -18,6 +18,7 @@ const WelcomePage = () => {
           onClick={() => {
             setIsSignUpButtonClicked(true);
             setIsLoginButtonClicked(false);
+            window.location.href = '/signup';
           }}
           className='py-1 px-2 border-2 border-gray-200 w-[70px] hover:bg-transparent hover:text-white transition-all duration-500 bg-white shadow-lg rounded-lg text-sm'>
           Sign Up
@@ -27,6 +28,7 @@ const WelcomePage = () => {
           onClick={() => {
             setIsSignUpButtonClicked(false);
             setIsLoginButtonClicked(true);
+            window.location.href = '/login';
           }}
           className='py-1 px-2 border-2 border-gray-200 w-[70px] hover:bg-transparent hover:text-white transition-all duration-500 bg-white shadow-lg rounded-lg text-sm'>
           Login
