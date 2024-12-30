@@ -51,9 +51,24 @@ const Index = () => {
           setTimeout(() => {
             window.location.href = '/login';
           }, 3000);
+        } else {
+          //toast
+          toast.error('Email already in use', {
+            style: {
+              background: '#333',
+              color: '#fff',
+            },
+          });
         }
       } catch (error: any) {
         console.error('Error signing up:', error);
+        //toast
+        toast.error(error, {
+          style: {
+            background: '#333',
+            color: '#fff',
+          },
+        });
       }
     },
   });

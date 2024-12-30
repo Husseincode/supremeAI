@@ -10,6 +10,7 @@ import { useFormik } from 'formik';
 //import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { signIn } from '@//auth/login/signin';
+//import { checkCredentialsBeforeSignIn } from '@//utils/userExist';
 
 const Index = () => {
   const validateSchema = Yup.object({
@@ -28,22 +29,55 @@ const Index = () => {
     },
     validationSchema: validateSchema,
     onSubmit: async (values) => {
+      // const userExists = await checkCredentialsBeforeSignIn(
+      //   values.email,
+      //   values.password
+      // );
       try {
         const { email, password } = values;
-        await signIn(email, password);
+        const user = await signIn(email, password);
 
-        toast.success('Login successful.', {
+        if (user) {
+          toast.success('Login successful.', {
+            style: {
+              background: '#333',
+              color: '#fff',
+            },
+          });
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 3000);
+        } else {
+          toast.error('Invalid credentials.', {
+            style: {
+              background: '#333',
+              color: '#fff',
+            },
+          });
+        }
+      } catch (error: any) {
+        toast.error(error, {
           style: {
             background: '#333',
-            color: '#fff',
+            color: 'maroon',
           },
         });
         setTimeout(() => {
           window.location.href = '/';
         }, 3000);
-      } catch (error: any) {
         console.error('Error signing up:', error);
       }
+      // if (userExists === false) {
+      //   toast.error('User does not exist.', {
+      //     style: {
+      //       background: 'maroon',
+      //       color: 'white',
+      //     },
+      //   });
+      //   return;
+      // } else {
+
+      // }
     },
   });
 
