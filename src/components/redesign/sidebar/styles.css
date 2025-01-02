@@ -1,0 +1,8 @@
+/** @format */
+
+.link:hover {
+  transition: all;
+  transition-duration: 1000;
+  width: auto;
+  text-decoration: underline;
+}

@@ -2,7 +2,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import defaultUser from '@//assets/defaultUser.png';
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import '../styles/stylish.module.css';
 import axios from 'axios';
 import LoadingBalls from '../components/loading/loading';
@@ -16,6 +22,9 @@ import {
   addDoc,
   serverTimestamp,
   getDocs,
+  query,
+  orderBy,
+  limit,
 } from 'firebase/firestore';
 import { db, auth } from '@//utils/firebaseConfig';
 import LoadingPage from './loading/loadingPage';
@@ -24,6 +33,7 @@ import WelcomePage from './welcomePage';
 //import { getChatHistory } from '../utils/getChatHistory';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+//import { DOMPurify } from 'dompurify';
 
 /** Message Interface */
 interface Message {
@@ -34,206 +44,146 @@ interface Message {
 
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [sendButtonColor, setSendButtonColor] = useState<string>('#9ca3af');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
-  const [userId, setUserId] = useState<string | null>(null); // Store user ID
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [sendButtonColor, setSendButtonColor] = useState('#9ca3af');
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const [user, setUser] = useState<any>();
-
-  /** Scroll to the latest message */
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Use marked to convert Markdown to HTML
-  const convertMarkdownToHtml = (content: string) => {
-    return marked(content); // Converts Markdown to HTML
-  };
-
-  // Handle file input change
-  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     setImage(e.target.files[0]);
-  //   }
-  // };
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsPageLoading(false);
-    }, 3000);
+    const timer = setTimeout(() => setIsPageLoading(false), 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUserId(currentUser.uid);
+        setUser(currentUser);
+        loadChatHistory(currentUser.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    hljs.highlightAll();
   }, [messages]);
 
-  const loadChatHistoryFromFirestore = async (uid: string) => {
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const loadChatHistory = async (uid: string) => {
     try {
       const messagesRef = collection(db, 'users', uid, 'chats');
-      const querySnapshot = await getDocs(messagesRef);
-
-      const messages: Message[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        messages.push({
-          role: data.sender,
-          content: data.content,
-          timestamp: data.timestamp.toDate(),
-        });
-      });
-
-      // Sort messages by timestamp to display them in the correct order
-      const sortedMessages = messages.sort(
-        (a: any, b: any) => a.timestamp.getTime() - b.timestamp.getTime()
+      const messagesQuery = query(
+        messagesRef,
+        orderBy('timestamp', 'desc'),
+        limit(50)
       );
+      const querySnapshot = await getDocs(messagesQuery);
 
-      setMessages(sortedMessages); // Update state with sorted messages
+      const chatHistory: Message[] = querySnapshot.docs.map((doc) => ({
+        role: doc.data().sender,
+        content: doc.data().content,
+        timestamp: doc.data().timestamp.toDate(),
+      }));
+
+      // Reverse the chat history to maintain chronological order
+      setMessages(chatHistory.reverse());
     } catch (error) {
-      console.error('Error loading chat history from Firestore:', error);
+      console.error('Error loading chat history:', error);
     }
   };
-
-  // useEffect(() => {
-  //   loadChatHistoryFromFirestore();
-  // }, []);
-
-  /** Save chat history to localStorage */
-  const saveChatHistory = async (messages: Message[], uid: string) => {
+  const saveChatHistory = async (message: Message) => {
+    if (!userId) return;
     try {
-      //const chatId = 'defaultChat'; // Replace with dynamic ID logic if needed
-      //const sender = 'user'; // Adjust sender logic if needed
-
-      // Save each message in Firestore
-      for (const message of messages) {
-        const messagesRef = collection(db, 'users', uid, 'chats');
-        await addDoc(messagesRef, {
-          sender: message.role,
-          content: message.content,
-          timestamp: serverTimestamp(), // Automatically generated timestamp
-        });
-      }
-
-      // Also save to localStorage for quick access
-      //localStorage.setItem('chatHistory', JSON.stringify(messages));
+      const messagesRef = collection(db, 'users', userId, 'chats');
+      await addDoc(messagesRef, {
+        sender: message.role,
+        content: message.content,
+        timestamp: serverTimestamp(),
+      });
     } catch (error) {
-      console.error('Error saving chat history to Firestore:', error);
+      console.error('Error saving chat history:', error);
     }
   };
 
-  //Send a message
   const sendMessage = async () => {
     if (!input.trim() || !userId) return;
-
     const userMessage: Message = { role: 'user', content: input };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setSendButtonColor('#9ca3af');
     setIsLoading(true);
+    console.log(userMessage);
+    console.log(messages);
 
     try {
-      // Only save the user's message once, right after adding it
-      await saveChatHistory([userMessage], userId);
-
-      const payload = { message: input, history: messages };
+      await saveChatHistory(userMessage);
+      const payload = {
+        message: input,
+        history: messages.slice(-10),
+      };
+      console.log(payload);
       const res = await axios.post('/api/chat', payload);
-
       const botMessage: Message = {
         role: 'assistant',
         content: res.data.response,
       };
-
-      const newMessages = [...updatedMessages, botMessage];
-      setMessages(newMessages);
-
-      // Save the assistant's response after adding it to the state
-      await saveChatHistory([botMessage], userId);
-    } catch (error) {
+      setMessages((prev) => [...prev, botMessage]);
+      await saveChatHistory(botMessage);
+    } catch (error: any) {
       console.error('Error sending message:', error);
+      // if (error.response?.status === 429) {
+      //   setMessages([
+      //     ...messages,
+      //     {
+      //       role: 'assistant',
+      //       content:
+      //         'You have reached the API rate limit. Please try again later.',
+      //     },
+      //   ]);
+      // }
+
       const errorMessage: Message = {
         role: 'assistant',
         content: 'Sorry, something went wrong!',
       };
-      const errorMessages = [...updatedMessages, errorMessage];
-      setMessages(errorMessages);
-      await saveChatHistory(errorMessages, userId);
+      setMessages((prev) => [...prev, errorMessage]);
+      await saveChatHistory(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    scrollToBottom(); // Scroll to the bottom only when new messages are added
-  }, [messages]);
-
-  /** Handle Enter key press */
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
   const renderMessageContent = (message: string) => {
-    // Check if the message is code by looking for code block indicators (optional)
-    const isCode = message.includes('```');
-    //Convert the message content to HTML if it's Markdown
-    const htmlContent = convertMarkdownToHtml(message);
-    if (isCode) {
-      // Remove the surrounding ``` for display
-      return (
-        <pre className='px-4 py-2'>
-          <code
-            dangerouslySetInnerHTML={{
-              __html: hljs.highlightAuto(message).value,
-            }}
-          />
-          {/* <code>{message.replace(/```/g, '')}</code> */}
-        </pre>
-      );
-    }
+    const htmlContent: any = marked(message);
+    //const sanitizedContent = DOMPurify.sanitize(htmlContent);
     return (
       <div
-        className='message-content px-4 py-2'
-        dangerouslySetInnerHTML={{ __html: htmlContent }} // This will safely inject the HTML/Markdown content
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
+        className='px-4 py-2 text-wrap'
       />
     );
   };
 
-  useEffect(() => {
-    hljs.highlightAll();
-  }, []);
-
-  // Fetch user chat history when the user is authenticated
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid); // Set user ID when authenticated
-        loadChatHistoryFromFirestore(user.uid); // Load user's chat history
-      } else {
-        setUserId(null); // Clear user ID when not authenticated
-      }
-    });
-
-    return () => unsubscribe(); // Cleanup the subscription
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      loadChatHistoryFromFirestore(userId);
-    }
-  }, [userId]);
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log('User is signed in:', user);
-      setUser(user);
-    } else {
-      console.log('User is signed out');
-    }
-  });
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      e.preventDefault();
+      // if (event.key === 'Enter') {
+      //   sendMessage();
+      // }
+      setInput(e.target.value);
+      setSendButtonColor(e.target.value.trim() ? '#000000' : '#9ca3af');
+    },
+    []
+  );
 
   if (isPageLoading) return <LoadingPage />;
 
@@ -311,13 +261,8 @@ const ChatBot = () => {
             <div className='min-h-[100px] border rounded-md bg-zinc-500 flex items-center justify-between px-2'>
               <textarea
                 value={input}
-                onKeyPress={handleKeyPress}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  setSendButtonColor(
-                    e.target.value.trim() ? '#000000' : '#9ca3af'
-                  );
-                }}
+                // onKeyPress={handleKeyPress}
+                onChange={handleInputChange}
                 className='outline-none px-2 pt-4 pb-2 bg-transparent w-full text-sm resize-none'
                 placeholder='Type a message...'
               />

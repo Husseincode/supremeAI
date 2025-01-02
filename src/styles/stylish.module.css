@@ -33,9 +33,9 @@
   }
 }
 
-@keyframes slideFromBottom {
+@keyframes slideFromTop {
   0% {
-    transform: translateY(20%);
+    transform: translateY(-100%);
     opacity: 0;
   }
   100% {
@@ -44,11 +44,13 @@
   }
 }
 
-@keyframes fadeIn {
+@keyframes slideFromBottom {
   0% {
+    transform: translateY(100%);
     opacity: 0;
   }
   100% {
+    transform: translateY(0);
     opacity: 1;
   }
 }
@@ -59,6 +61,15 @@
   }
   0% {
     opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 
@@ -116,17 +127,6 @@
     max-height: 56px;
     /* opacity: 0; */
     border: none;
-  }
-}
-
-@keyframes slideFromTop {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
   }
 }
 
@@ -195,14 +195,16 @@
   animation: slideFromRight 1s ease-out forwards;
 }
 
-.slide-from-bottom {
-  animation: slideFromBottom 1s ease-out forwards;
+.fade-in {
+  animation: fadeIn 1s ease-in forwards;
 }
-
 .slide-from-top {
   animation: slideFromTop 1s ease-out forwards;
 }
 
+.slide-from-bottom {
+  animation: slideFromBottom 1s ease-out forwards;
+}
 .slide-in {
   animation: slideIn 1s ease-out forwards;
 }
@@ -213,9 +215,6 @@
 
 .slide-out {
   animation: slideOut 0.8s ease-out forwards;
-}
-.fade-in {
-  animation: fadeIn 1s ease-in forwards;
 }
 
 .fade-out {
@@ -236,45 +235,4 @@
 
 .about-steps-out {
   animation: stepsOut 0.4s ease-in forwards;
-}
-
-@keyframes border-rotation {
-  0% {
-    border-top-color: #e7c501ab;
-    border-right-color: white;
-    border-bottom-color: #ebd662ab;
-    border-left-color: white;
-  }
-  25% {
-    border-top-color: white;
-    border-right-color: #e7c501ab;
-    border-bottom-color: white;
-    border-left-color: #ebd662ab;
-  }
-  50% {
-    border-top-color: #ebd662ab;
-    border-right-color: white;
-    border-bottom-color: #e7c501ab;
-    border-left-color: white;
-  }
-  75% {
-    border-top-color: white;
-    border-right-color: #ebd662ab;
-    border-bottom-color: white;
-    border-left-color: #e7c501ab;
-  }
-  100% {
-    border-top-color: #e7c501ab;
-    border-right-color: white;
-    border-bottom-color: #ebd662ab;
-    border-left-color: white;
-  }
-}
-
-.border-animate {
-  border: 1px solid #e7c301;
-  animation: border-rotation 3s linear infinite;
-  border-radius: 30px;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 10px #e7c501ab;
 }
