@@ -39,7 +39,7 @@ const Index = () => {
           await sendEmailVerification(user);
           console.log('Verification email sent.');
           // Initialize user data in Firestore
-          await initializeUserData(user);
+          await initializeUserData(user, formik.values.name);
           //toast
           toast.success('Verification email sent.', {
             style: {
@@ -47,6 +47,7 @@ const Index = () => {
               color: '#fff',
             },
           });
+
           //navigate to login
           setTimeout(() => {
             window.location.href = '/login';

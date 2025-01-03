@@ -8,7 +8,7 @@ import Chat from '../chat';
 const App = () => {
   return (
     <React.Fragment>
-      <section className='flex w-full'>
+      <section className='flex w-full overflow-hidden'>
         <SideBar />
         <History />
         <Chat />

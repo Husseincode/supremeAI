@@ -1,7 +1,7 @@
 /** @format */
 
 import React from 'react';
-import SignUp from '@//components/signup/index';
+import SignUp from '@//components/redesign/signup/index';
 
 const page = () => {
   return <SignUp />;

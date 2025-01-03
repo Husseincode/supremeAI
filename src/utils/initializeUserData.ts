@@ -5,12 +5,12 @@
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@//utils/firebaseConfig'; // Import your Firestore instance
 
-const initializeUserData = async (user: any) => {
+const initializeUserData = async (user: any, displayName: string) => {
   const userDocRef = doc(db, 'users', user.uid);
   await setDoc(userDocRef, {
     uid: user.uid,
     email: user.email,
-    displayName: user.displayName || '',
+    displayName: displayName,
     createdAt: new Date(),
     chatHistory: [], // Initialize with empty chat history
   });

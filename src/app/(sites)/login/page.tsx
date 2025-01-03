@@ -1,7 +1,7 @@
 /** @format */
 
 import React from 'react';
-import Login from '@//components/signin';
+import Login from '@//components/redesign/signin/index';
 
 const page = () => {
   return <Login />;
